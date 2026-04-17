@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -37,7 +38,7 @@
             justify-content: center;
             align-items: center;
             overflow-x: hidden;
-            background-image: 
+            background-image:
                 radial-gradient(circle at 10% 20%, rgba(112, 0, 255, 0.1) 0%, transparent 40%),
                 radial-gradient(circle at 90% 80%, rgba(0, 242, 255, 0.1) 0%, transparent 40%);
         }
@@ -62,8 +63,15 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         header h1 {
@@ -71,6 +79,7 @@
             font-size: 2.5rem;
             background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 0.5rem;
         }
@@ -129,7 +138,9 @@
         }
 
         @keyframes blink {
-            50% { opacity: 0.4; }
+            50% {
+                opacity: 0.4;
+            }
         }
 
         .controls {
@@ -241,16 +252,25 @@
 
         .bar.today {
             filter: drop-shadow(0 0 8px var(--accent-primary));
-            border: 1px solid rgba(255,255,255,0.3);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         @media (max-width: 480px) {
-            .time-value { font-size: 3.5rem; }
-            .glass-card { padding: 1.5rem; }
-            .btn { padding: 0.8rem 1.2rem; }
+            .time-value {
+                font-size: 3.5rem;
+            }
+
+            .glass-card {
+                padding: 1.5rem;
+            }
+
+            .btn {
+                padding: 0.8rem 1.2rem;
+            }
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="glass-card">
@@ -292,7 +312,7 @@
         let isRunning = true;
         let todaySeconds = 0;
         let lastTimestamp = Date.now();
-        
+
         lucide.createIcons();
 
         const timeDisplay = document.getElementById('timeCounter');
@@ -334,7 +354,7 @@
             if (isRunning) {
                 todaySeconds += delta;
                 updateDisplay();
-                
+
                 // Day rollover check
                 const currentDay = getTodayKey();
                 const vault = loadVault();
@@ -345,11 +365,11 @@
 
         toggleBtn.addEventListener('click', () => {
             isRunning = !isRunning;
-            lastTimestamp = Date.now(); 
-            
+            lastTimestamp = Date.now();
+
             const icon = isRunning ? 'pause' : 'play';
             const text = isRunning ? 'Pause Session' : 'Resume Session';
-            
+
             toggleBtn.innerHTML = `<i data-lucide="${icon}"></i><span>${text}</span>`;
             lucide.createIcons();
 
@@ -360,7 +380,7 @@
                 statusBadge.classList.add('paused');
                 statusText.textContent = 'SESSION PAUSED';
             }
-            
+
             saveCurrentProgress();
         });
 
@@ -383,12 +403,12 @@
         function renderChart() {
             const vault = loadVault();
             chartContainer.innerHTML = '';
-            
+
             const daysToLabels = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
             const today = new Date();
-            
-            let maxSeconds = 3600; 
-            
+
+            let maxSeconds = 3600;
+
             const last7Days = [];
             for (let i = 6; i >= 0; i--) {
                 const date = new Date();
@@ -402,19 +422,19 @@
             last7Days.forEach(day => {
                 const wrapper = document.createElement('div');
                 wrapper.className = 'bar-wrapper';
-                
+
                 const bar = document.createElement('div');
                 bar.className = `bar ${day.key === getTodayKey() ? 'today' : ''}`;
                 const height = (day.val / maxSeconds) * 100;
                 bar.style.height = `${Math.max(height, 4)}%`;
-                
+
                 const hours = (day.val / 3600).toFixed(1);
                 bar.setAttribute('data-value', `${hours}h`);
-                
+
                 const label = document.createElement('span');
                 label.className = 'day-label';
                 label.textContent = day.label;
-                
+
                 wrapper.appendChild(bar);
                 wrapper.appendChild(label);
                 chartContainer.appendChild(wrapper);
@@ -425,12 +445,12 @@
             const vault = loadVault();
             const key = getTodayKey();
             todaySeconds = vault[key] || 0;
-            
+
             updateDisplay();
             renderChart();
-            
+
             setInterval(tick, 100);
-            
+
             // Save every 3 seconds as requested
             setInterval(() => {
                 if (isRunning) {
@@ -443,4 +463,5 @@
         init();
     </script>
 </body>
+
 </html>
