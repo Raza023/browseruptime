@@ -312,6 +312,7 @@
         let isRunning = true;
         let todaySeconds = 0;
         let lastTimestamp = Date.now();
+        let initializedDay = getTodayKey();
 
         lucide.createIcons();
 
@@ -351,15 +352,18 @@
             const delta = (now - lastTimestamp) / 1000;
             lastTimestamp = now;
 
+            // Day rollover check (handles midnight transition)
+            const currentDay = getTodayKey();
+            if (currentDay !== initializedDay) {
+                todaySeconds = 0;
+                initializedDay = currentDay;
+                saveCurrentProgress();
+                renderChart();
+            }
+
             if (isRunning) {
                 todaySeconds += delta;
                 updateDisplay();
-
-                // Day rollover check
-                const currentDay = getTodayKey();
-                const vault = loadVault();
-                // If today is a new day compared to what we started with, 
-                // we'd normally reset, but tick keeps it simple.
             }
         }
 
