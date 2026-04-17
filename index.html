@@ -1,157 +1,445 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <title>Browser Uptime Tracker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uptime Pro | Browser Analytics</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
+        :root {
+            --bg-deep: #050510;
+            --accent-primary: #00f2ff;
+            --accent-secondary: #7000ff;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #ffffff;
+            --text-dim: #a0a0c0;
+            --danger: #ff4d4d;
+            --success: #00ff88;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-            color: white;
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(112, 0, 255, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(0, 242, 255, 0.1) 0%, transparent 40%);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            padding: 2rem;
+            z-index: 1;
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 32px;
+            padding: 3rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             text-align: center;
-            padding: 40px;
+            animation: fadeIn 0.8s ease-out;
         }
 
-        h1 {
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        header h1 {
+            font-weight: 800;
             font-size: 2.5rem;
-            margin-bottom: 20px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
         }
 
-        .time {
-            font-size: 3rem;
-            margin: 20px 0;
+        header p {
+            color: var(--text-dim);
+            font-weight: 300;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            margin-bottom: 2rem;
         }
 
-        button {
-            padding: 10px 20px;
-            margin: 10px;
-            font-size: 1rem;
+        .timer-display {
+            position: relative;
+            margin: 2rem 0;
+        }
+
+        .time-value {
+            font-size: 5rem;
+            font-weight: 800;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -2px;
+            line-height: 1;
+            text-shadow: 0 0 30px rgba(0, 242, 255, 0.3);
+            margin-top: 0.5rem;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 1rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: rgba(0, 255, 136, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .status-badge.paused {
+            background: rgba(255, 77, 77, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(255, 77, 77, 0.2);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+            box-shadow: 0 0 10px currentColor;
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0.4; }
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            background: none;
             border: none;
-            border-radius: 8px;
+            cursor: pointer;
+            padding: 1rem 2rem;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            box-shadow: 0 10px 20px -5px rgba(0, 242, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px -5px rgba(0, 242, 255, 0.5);
+        }
+
+        .btn-outline {
+            border: 1px solid var(--glass-border);
+            color: var(--text-dim);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--text-dim);
+            color: white;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .analytics {
+            margin-top: 3rem;
+            text-align: left;
+        }
+
+        .analytics h2 {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-dim);
+            margin-bottom: 1.5rem;
+            padding-left: 0.5rem;
+        }
+
+        .chart-container {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            height: 120px;
+            gap: 10px;
+            padding: 0 0.5rem;
+        }
+
+        .bar-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.8rem;
+            height: 100%;
+            justify-content: flex-end;
+        }
+
+        .bar {
+            width: 100%;
+            background: linear-gradient(to top, var(--accent-secondary), var(--accent-primary));
+            border-radius: 6px 6px 2px 2px;
+            min-height: 4px;
+            transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
             cursor: pointer;
         }
 
-        .pause {
-            background: #ff9800;
+        .bar:hover::after {
+            content: attr(data-value);
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            background: var(--text-main);
+            color: var(--bg-deep);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 800;
         }
 
-        .resume {
-            background: #4caf50;
+        .day-label {
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            font-weight: 600;
         }
 
-        .reset {
-            background: #f44336;
+        .bar.today {
+            filter: drop-shadow(0 0 8px var(--accent-primary));
+            border: 1px solid rgba(255,255,255,0.3);
         }
 
-        .history {
-            margin-top: 40px;
-            text-align: left;
-            max-width: 400px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .day {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 8px;
+        @media (max-width: 480px) {
+            .time-value { font-size: 3.5rem; }
+            .glass-card { padding: 1.5rem; }
+            .btn { padding: 0.8rem 1.2rem; }
         }
     </style>
 </head>
-
 <body>
-    <h1>Browser Uptime Tracker</h1>
-    <div class="time" id="uptime">00:00:00</div>
+    <div class="container">
+        <div class="glass-card">
+            <header>
+                <h1>Uptime Pro</h1>
+                <p>System Session Analytics</p>
+            </header>
 
-    <button class="pause" onclick="pause()">Pause</button>
-    <button class="resume" onclick="resume()">Resume</button>
-    <button class="reset" onclick="reset()">Reset Today</button>
+            <div class="timer-display">
+                <div id="statusBadge" class="status-badge">
+                    <span class="status-dot"></span>
+                    <span id="statusText">LIVE TRACKING</span>
+                </div>
+                <div id="timeCounter" class="time-value">00:00:00</div>
+            </div>
 
-    <div class="history">
-        <h2>Last 7 Days</h2>
-        <div id="history"></div>
+            <div class="controls">
+                <button id="toggleBtn" class="btn btn-primary">
+                    <i data-lucide="pause"></i>
+                    <span>Pause Session</span>
+                </button>
+                <button id="resetBtn" class="btn btn-outline">
+                    <i data-lucide="rotate-ccw"></i>
+                    <span>Reset Today</span>
+                </button>
+            </div>
+
+            <div class="analytics">
+                <h2>Last 7 Days (Hours)</h2>
+                <div id="chart" class="chart-container">
+                    <!-- Bars generated by JS -->
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
-        let interval;
-        let isPaused = false;
-        let currentTime = 0;
+        const STORAGE_KEY = 'uptime_pro_vault_v2';
+        let isRunning = true;
+        let todaySeconds = 0;
+        let lastTimestamp = Date.now();
+        
+        lucide.createIcons();
 
-        const STORAGE_KEY = "uptime_data";
-        const TODAY_KEY = new Date().toISOString().slice(0, 10);
+        const timeDisplay = document.getElementById('timeCounter');
+        const toggleBtn = document.getElementById('toggleBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const statusBadge = document.getElementById('statusBadge');
+        const statusText = document.getElementById('statusText');
+        const chartContainer = document.getElementById('chart');
 
-        function loadData() {
-            let data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
-            currentTime = data[TODAY_KEY] || 0;
-            return data;
+        function getTodayKey() {
+            return new Date().toISOString().split('T')[0];
         }
 
-        function saveData(data) {
-            data[TODAY_KEY] = currentTime;
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        function loadVault() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            return data ? JSON.parse(data) : {};
         }
 
-        function formatTime(seconds) {
-            let h = Math.floor(seconds / 3600);
-            let m = Math.floor((seconds % 3600) / 60);
-            let s = seconds % 60;
+        function saveVault(vault) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(vault));
+        }
+
+        function formatTime(totalSeconds) {
+            const h = Math.floor(totalSeconds / 3600);
+            const m = Math.floor((totalSeconds % 3600) / 60);
+            const s = Math.floor(totalSeconds % 60);
             return [h, m, s].map(v => String(v).padStart(2, '0')).join(':');
         }
 
-        function updateUI() {
-            document.getElementById("uptime").innerText = formatTime(currentTime);
+        function updateDisplay() {
+            timeDisplay.textContent = formatTime(todaySeconds);
         }
 
-        function startTimer() {
-            interval = setInterval(() => {
-                if (!isPaused) {
-                    currentTime += 3;
-                    let data = loadData();
-                    saveData(data);
-                    updateUI();
+        function tick() {
+            const now = Date.now();
+            const delta = (now - lastTimestamp) / 1000;
+            lastTimestamp = now;
+
+            if (isRunning) {
+                todaySeconds += delta;
+                updateDisplay();
+                
+                // Day rollover check
+                const currentDay = getTodayKey();
+                const vault = loadVault();
+                // If today is a new day compared to what we started with, 
+                // we'd normally reset, but tick keeps it simple.
+            }
+        }
+
+        toggleBtn.addEventListener('click', () => {
+            isRunning = !isRunning;
+            lastTimestamp = Date.now(); 
+            
+            const icon = isRunning ? 'pause' : 'play';
+            const text = isRunning ? 'Pause Session' : 'Resume Session';
+            
+            toggleBtn.innerHTML = `<i data-lucide="${icon}"></i><span>${text}</span>`;
+            lucide.createIcons();
+
+            if (isRunning) {
+                statusBadge.classList.remove('paused');
+                statusText.textContent = 'LIVE TRACKING';
+            } else {
+                statusBadge.classList.add('paused');
+                statusText.textContent = 'SESSION PAUSED';
+            }
+            
+            saveCurrentProgress();
+        });
+
+        resetBtn.addEventListener('click', () => {
+            if (confirm('Reset today\'s count to zero?')) {
+                todaySeconds = 0;
+                saveCurrentProgress();
+                updateDisplay();
+                renderChart();
+            }
+        });
+
+        function saveCurrentProgress() {
+            const vault = loadVault();
+            const key = getTodayKey();
+            vault[key] = Math.floor(todaySeconds);
+            saveVault(vault);
+        }
+
+        function renderChart() {
+            const vault = loadVault();
+            chartContainer.innerHTML = '';
+            
+            const daysToLabels = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+            const today = new Date();
+            
+            let maxSeconds = 3600; 
+            
+            const last7Days = [];
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(today.getDate() - i);
+                const key = date.toISOString().split('T')[0];
+                const val = (key === getTodayKey()) ? todaySeconds : (vault[key] || 0);
+                last7Days.push({ key, val, label: daysToLabels[date.getDay()] });
+                if (val > maxSeconds) maxSeconds = val;
+            }
+
+            last7Days.forEach(day => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'bar-wrapper';
+                
+                const bar = document.createElement('div');
+                bar.className = `bar ${day.key === getTodayKey() ? 'today' : ''}`;
+                const height = (day.val / maxSeconds) * 100;
+                bar.style.height = `${Math.max(height, 4)}%`;
+                
+                const hours = (day.val / 3600).toFixed(1);
+                bar.setAttribute('data-value', `${hours}h`);
+                
+                const label = document.createElement('span');
+                label.className = 'day-label';
+                label.textContent = day.label;
+                
+                wrapper.appendChild(bar);
+                wrapper.appendChild(label);
+                chartContainer.appendChild(wrapper);
+            });
+        }
+
+        function init() {
+            const vault = loadVault();
+            const key = getTodayKey();
+            todaySeconds = vault[key] || 0;
+            
+            updateDisplay();
+            renderChart();
+            
+            setInterval(tick, 100);
+            
+            // Save every 3 seconds as requested
+            setInterval(() => {
+                if (isRunning) {
+                    saveCurrentProgress();
+                    renderChart();
                 }
             }, 3000);
         }
 
-        function pause() {
-            isPaused = true;
-        }
-
-        function resume() {
-            isPaused = false;
-        }
-
-        function reset() {
-            currentTime = 0;
-            let data = loadData();
-            saveData(data);
-            updateUI();
-        }
-
-        function renderHistory() {
-            let data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
-            let container = document.getElementById("history");
-            container.innerHTML = "";
-
-            let dates = Object.keys(data).sort().reverse().slice(0, 7);
-
-            dates.forEach(date => {
-                let div = document.createElement("div");
-                div.className = "day";
-                div.innerText = date + " → " + formatTime(data[date]);
-                container.appendChild(div);
-            });
-        }
-
-        // INIT
-        loadData();
-        updateUI();
-        renderHistory();
-        startTimer();
-
+        init();
     </script>
 </body>
-
 </html>
