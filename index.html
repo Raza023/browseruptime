@@ -255,6 +255,45 @@
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
+        .offset-section {
+            margin-top: 1.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.8rem;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+
+        .offset-section:hover {
+            opacity: 1;
+        }
+
+        .input-glass {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 0.6rem 1rem;
+            color: white;
+            width: 130px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .input-glass:focus {
+            border-color: var(--accent-primary);
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.1);
+        }
+
+        .btn-small {
+            padding: 0.6rem 1.2rem;
+            font-size: 0.85rem;
+            border-radius: 12px;
+            height: 38px;
+        }
+
         @media (max-width: 480px) {
             .time-value {
                 font-size: 3.5rem;
@@ -266,6 +305,15 @@
 
             .btn {
                 padding: 0.8rem 1.2rem;
+            }
+
+            .offset-section {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .input-glass {
+                width: 100%;
             }
         }
     </style>
@@ -298,6 +346,14 @@
                 </button>
             </div>
 
+            <div class="offset-section">
+                <input type="number" id="offsetInput" class="input-glass" placeholder="Add mins..." min="0">
+                <button id="addOffsetBtn" class="btn btn-outline btn-small">
+                    <i data-lucide="plus-circle"></i>
+                    <span>Add Offset</span>
+                </button>
+            </div>
+
             <div class="analytics">
                 <h2>Last 7 Days (Hours)</h2>
                 <div id="chart" class="chart-container">
@@ -322,6 +378,8 @@
         const statusBadge = document.getElementById('statusBadge');
         const statusText = document.getElementById('statusText');
         const chartContainer = document.getElementById('chart');
+        const offsetInput = document.getElementById('offsetInput');
+        const addOffsetBtn = document.getElementById('addOffsetBtn');
 
         function getTodayKey() {
             return new Date().toISOString().split('T')[0];
@@ -391,6 +449,18 @@
         resetBtn.addEventListener('click', () => {
             if (confirm('Reset today\'s count to zero?')) {
                 todaySeconds = 0;
+                saveCurrentProgress();
+                updateDisplay();
+                renderChart();
+            }
+        });
+
+        addOffsetBtn.addEventListener('click', () => {
+            const mins = parseFloat(offsetInput.value);
+            if (!isNaN(mins) && mins !== 0) {
+                todaySeconds += mins * 60;
+                if (todaySeconds < 0) todaySeconds = 0;
+                offsetInput.value = '';
                 saveCurrentProgress();
                 updateDisplay();
                 renderChart();
