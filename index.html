@@ -367,8 +367,9 @@
             }
         }
 
-        toggleBtn.addEventListener('click', () => {
-            isRunning = !isRunning;
+        function setRunningState(state) {
+            if (isRunning === state) return;
+            isRunning = state;
             lastTimestamp = Date.now();
 
             const icon = isRunning ? 'pause' : 'play';
@@ -386,6 +387,25 @@
             }
 
             saveCurrentProgress();
+        }
+
+        toggleBtn.addEventListener('click', () => {
+            setRunningState(!isRunning);
+        });
+
+        let autoPaused = false;
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                if (isRunning) {
+                    setRunningState(false);
+                    autoPaused = true;
+                }
+            } else {
+                if (autoPaused) {
+                    setRunningState(true);
+                    autoPaused = false;
+                }
+            }
         });
 
         resetBtn.addEventListener('click', () => {
